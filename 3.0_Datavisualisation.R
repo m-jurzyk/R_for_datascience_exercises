@@ -319,4 +319,160 @@ ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
 
 ### The end of chapter
 
+## NEW CHAPTER
+
+# 4.4 Workflow basics - Excercises 
+
+#Why does this code not work?
+
+my_variable <- 10
+
+my_variable
+my_variable
+
+# letter 'i' was broken 
+
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+
+## Fixed 
+
+
+## alt shift + k - show shourtcuts 
+
+
+## END OF THE CHAPTER 
+
+# CHAPTER 5 - Data transformation 
+
+# Loading libraries 
+
+library(nycflights13)
+
+library(tidyverse)
+
+library(dplyr)
+
+### 5.2.4 Exercises
+#Find all flights that
+
+#Had an arrival delay of two or more hours
+
+flights %>%  filter(arr_delay>120)
+
+#Flew to Houston (IAH or HOU)
+
+flights %>% head
+colnames(flights)
+
+
+flights %>% filter(dest=="HOU"|dest=="IAH") # Answer 
+
+view(flights)
+
+flights
+
+#Were operated by United, American, or Delta
+
+?flights
+
+viwe(airlines) ## To check airlines carrier / full name corelation 
+
+flights %>% filter(carrier=="UA"|carrier=="AA"|carrier=="DL") # Answer 
+
+## UA, AA, DL United, American, Delta 
+
+#Departed in summer (July, August, and September)
+
+flights %>% filter(month==7|month==8|month==9)
+
+##Arrived more than two hours late, but didn’t leave late
+
+flights %>% filter(dep_delay<=0 & arr_delay>120)
+
+##Were delayed by at least an hour, but made up over 30 minutes in flight
+
+
+flights %>% filter(dep_delay>60 & arr_delay<=30)
+
+##Departed between midnight and 6am (inclusive)
+
+flights %>% filter(dep_time>=0 & dep_time<=600)
+
+## DONE!
+
+##Another useful dplyr filtering helper is between(). What does it do? 
+#Can you use it to simplify the code needed to answer the previous challenges?
+
+flights %>% filter(dep_time, between(c)) ## Non lo so :( 
+
+#How many flights have a missing dep_time? What other variables are missing? 
+#What might these rows represent?
+
+f1 <-flights %>% filter(is.na(dep_time))
+
+nrow(f1)
+
+
+
+## 8255? 
+
+# CHAPTER 5.3 Arrange
+
+#Sort flights to find the most delayed flights. Find the flights that left earliest.
+
+flights %>% arrange(dep_delay,desc(arr_delay))
+
+## Flights that have the smallest number of depatrute delay, and the highest of 
+#arrival delay
+
+?flights
+
+#Sort flights to find the fastest (highest speed) flights.
+
+
+## I need to find speed value- need to create column speed (dist/time)
+# distance in miles conversion to kmh
+
+flights$distkm <- flights$distance/0.62137
+
+## show km 
+
+select(flights, distkm)
+
+## 336k rows of distances 
+
+## Time in hours: ~ Airtime/60 
+
+
+flights$air_time_h <- flights$air_time/60
+
+flights %>% select(air_time_h)
+
+flights %>% arrange(speed)
+
+
+## Speed 
+
+flights$speed <- flights$distkm/flights$air_time_h
+
+arrange(flights, speed)
+select(flights,speed)
+
+## how to show selected and arranged column? 
+
+
+#Which flights travelled the farthest? Which travelled the shortest?
+
+arrange(flights,distkm)
+
+arrange(flights, desc(distkm))
+
+## How to show only arranged columns 
+
 

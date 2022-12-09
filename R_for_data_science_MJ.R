@@ -831,6 +831,53 @@ ggplot(data = smaller, mapping = aes(x = carat, y = price)) +
 
 # WRANGLE  ----
 
-## CHAPTER 9- Introduction ----
+# CHAPTER 9- Introduction ----
+
+# CHAPTER 10- Tibbles ----
+
+library(tidyverse)
+
+as.tibble(iris)
+
+tibble(
+  x=1:10,
+  y=1,
+  z= x^2+y
+)
 
 
+## tibble names 
+
+tb <- tibble(
+  `:)` = "smile", 
+  ` ` = "space",
+  `2000` = "number"
+)
+
+tb
+
+tibble(
+  a = lubridate::now() + runif(1e3) * 86400,
+  b = lubridate::today() + runif(1e3) * 30,
+  c = 1:1e3,
+  d = runif(1e3),
+  e = sample(letters, 1e3, replace = TRUE))
+
+
+nycflights13::flights %>% 
+  print(n = 10, width = Inf)
+
+nycflights13::flights %>% 
+  View()    
+
+
+### 10.5 Exercises ----
+
+#How can you tell if an object is a tibble? 
+#(Hint: try printing mtcars, which is a regular data frame).
+
+mtcars %>% (print)
+
+mtcars %>%  view()
+
+#CHAPTER 11- Data import ----

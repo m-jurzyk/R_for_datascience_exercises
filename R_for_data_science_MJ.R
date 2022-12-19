@@ -1,16 +1,23 @@
 # R for data science ----
 
+# My exercises in R language, November 2022
+
+# Fist chapter 
+
 #EXPLORE ----
-## Loading library tidiverse to get access to ggplot
+## Loading tidiverse library to get access to ggplot
 
 library(tidyverse)
 
 ## MPG access to data
 
-
 # CHAPTER 3- Data visualisation ----
+
 mpg
 
+# CMD + enter - run a command 
+
+head(mpg) # First few rows of mpg
 
 ## Creating ggplot 
 
@@ -20,7 +27,6 @@ mpg
 mpg %>% ggplot()+
   geom_point(mapping = aes(x=displ, y =hwy))
 
-
 # How many rows and how many columns are in mpg dataset?
 
 nrow(mpg)
@@ -29,9 +35,7 @@ ncol(mpg)
 
 # 234 rows and 11 columns 
 
-
-?mpg
-
+?mpg # I can also ask for help with mpg data using ?mgp 
 
 ## 3.2.4 Excercise 4: Make a scatter plot of hwy vs cyl
 
@@ -78,7 +82,7 @@ a2<- mpg %>% ggplot()+
 
 a1|a2
 
-## Kind of :/ 
+## Kind of- but it's working 
 
 ## Colour blue 
 
@@ -196,12 +200,12 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_line()+
   geom_boxplot()
 
-# With histogram it seems to be more dificult 
+# With histogram it seems to be more difficult 
 
-ggplot(data = mpg, mapping = aes(x = displ)+
-         geom_histogram()
+ggplot(data = mpg, mapping = aes(x=hwy)+
+    geom_histogram()
 
-      ### non lo so :/ 
+      ### non lo so :/  - problems with histogram
       
       
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
@@ -466,21 +470,34 @@ flights %>% arrange(speed)
 
 ## MJ Speed column  
 
+
 flights$speed <- flights$distkm/flights$air_time_h
 
 f2 <- arrange(flights,desc(speed)) %>% 
-arrange(select(f2,speed))
+arrange(select(f2,speed)) %>% 
 
-## MJ QUESTION  how to show selected and arranged column? 
+f3 <-flights %>%  mutate(speed_1=distkm/air_time_h)
+
+f3 %>%  arrange(desc(speed_1)) %>% 
+  select(speed_1, dest, flight, tailnum)
 
 
-# EXCERCISE: Which flights travelled the farthest? Which travelled the shortest?
+## MJ QUESTION  how to show selected and arranged column?: I think that line 479 
+# But if it's correct?
 
-arrange(flights,distkm),
 
-arrange(flights, desc(distkm))
+# EXCERCISE: Which flights traveled the farthest? Which traveled the shortest?
 
-## MJ QUESTION:: How to show only arranged columns 
+f3 %>%  
+  arrange(distance) %>% 
+  select(speed_1, dest, flight, tailnum, distance)
+
+
+f3 %>%  
+  arrange(desc(distance)) %>% 
+  select(speed_1, dest, flight, tailnum, distance)
+
+## MJ QUESTION:: How to show only arranged columns - maybe like this? 
 
 
 #EXCERCISE: How could you use arrange() to sort all missing values to the start?
@@ -489,7 +506,7 @@ arrange(flights, desc(distkm))
 
 flights %>%  arrange(desc(is.na(dep_time)))
 
-
+# Like this? 
 
 
 ### 5.4 Select  ----
@@ -881,3 +898,77 @@ mtcars %>% (print)
 mtcars %>%  view()
 
 #CHAPTER 11- Data import ----
+
+# Read CSV 
+
+library(tidyverse)
+
+
+#read_csv()
+
+read_csv("/Users/maciejjurzyk/Downloads/EUvaccine.csv")
+
+## Worse but faster way of loading data 
+
+data.table::fread("/Users/maciejjurzyk/Downloads/EUvaccine.csv")
+
+
+#CHAPTER  12- Tidy data----
+
+##There are three interrelated rules which make a dataset tidy:
+
+#Each variable must have its own column.
+#Each observation must have its own row.
+#Each value must have its own cell.
+
+#CHAPTER 13- Relational data ----
+
+library(tidyverse)
+library(nycflights13)
+
+flights
+
+airlines
+
+airports
+
+planes
+
+flights
+
+###13.3.1 Exercises----
+#add a surrogate key to flights.
+
+f_key <-flights %>%  
+mutate(surrogate_key= row_number()) %>% 
+glimpse()
+
+f_key %>% glimpse()
+
+f_key %>% select(surrogate_key)
+
+
+#Identify the keys in the following datasets
+
+a12 <- Lahman::Batting
+
+a12 %>%  glimpse()
+
+a12 %>% 
+  count(playerID) %>% 
+  filter(n > 1)
+
+a12 %>%
+  group_by(playerID, yearID, stint) %>%
+  filter(n() > 1)
+
+
+planes
+
+planes %>%
+  count(tailnum) %>%
+  filter(n > 1)
+
+
+diamonds
+

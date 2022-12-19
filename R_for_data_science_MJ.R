@@ -4,14 +4,16 @@
 
 # Fist chapter 
 
-#EXPLORE ----
+#CHAPTER 1- EXPLORE ----
 ## Loading tidiverse library to get access to ggplot
 
 library(tidyverse)
 
 ## MPG access to data
 
-# CHAPTER 3- Data visualisation ----
+# CHAPTER 2- Introduction ----
+
+# CHAPTER 3- Data visualization ----
 
 mpg
 
@@ -39,8 +41,10 @@ ncol(mpg)
 
 ## 3.2.4 Excercise 4: Make a scatter plot of hwy vs cyl
 
-mpg %>% ggplot()+
-  geom_point(mapping = aes(x=hwy, y=cyl))
+mpg %>% 
+  ggplot()+
+  geom_point(mapping = aes(x=cyl, y=hwy))
+ 
 
 ## Prego! 
 
@@ -49,6 +53,7 @@ mpg %>% ggplot()+
 
 mpg %>% ggplot()+
   geom_point(mapping = aes(x=class, y=drv))
+
 
 ## it is showing only random examples of driven train type with the type of the car 
 
@@ -481,28 +486,25 @@ f3 <-flights %>%  mutate(speed_1=distkm/air_time_h)
 f3 %>%  arrange(desc(speed_1)) %>% 
   select(speed_1, dest, flight, tailnum)
 
-
 ## MJ QUESTION  how to show selected and arranged column?: I think that line 479 
 # But if it's correct?
 
-
 # EXCERCISE: Which flights traveled the farthest? Which traveled the shortest?
 
+# The Shortest flights 
 f3 %>%  
   arrange(distance) %>% 
   select(speed_1, dest, flight, tailnum, distance)
 
-
+# The longest flights 
 f3 %>%  
   arrange(desc(distance)) %>% 
   select(speed_1, dest, flight, tailnum, distance)
 
 ## MJ QUESTION:: How to show only arranged columns - maybe like this? 
 
-
 #EXCERCISE: How could you use arrange() to sort all missing values to the start?
 #(Hint: use is.na()).
-
 
 flights %>%  arrange(desc(is.na(dep_time)))
 
@@ -543,7 +545,6 @@ flights %>%  select(any_of(p1))
 
 ### 5.5 Mutate ----
 
-
 # I tried to count speed by using dist km and air time in hours 
 
 flights$speed <- flights$distkm/flights$air_time_h
@@ -554,10 +555,12 @@ f2 <- arrange(flights,desc(speed))
 
 # Insted of using mutate i used transmutate and I left only one column 
 
-f3 <- flights %>% transmute(flights$speed <- flights$distkm/flights$air_time_h)
+f4 <- flights %>% transmute(flights$speed <- flights$distkm/flights$air_time_h)
 
-arrange(f3,desc(speed))
-
+arrange(f4,desc(speed)) %>% 
+  
+  
+  
 ### 5.5.2 Exercises ----
 
 #Currently dep_time and sched_dep_time are convenient to look at,

@@ -1,7 +1,5 @@
 # R for data science ----
-
 # My exercises in R language, November 2022
-
 # Fist chapter 
 
 #CHAPTER 1- EXPLORE ----
@@ -10,9 +8,7 @@
 library(tidyverse)
 
 ## MPG access to data
-
 # CHAPTER 2- Introduction ----
-
 # CHAPTER 3- Data visualization ----
 
 mpg
@@ -215,7 +211,7 @@ ggplot(data = mpg, mapping = aes(x=hwy)+
       
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
         geom_point() + 
-        geom_smooth()
+        geom_smooth(),
 
 ## Prediction: mpg mapped x- engine size, y- efficiency, color- drive type
 ## Scatterplot with line smooth without se?
@@ -227,7 +223,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_point() + 
-  geom_smooth()
+  geom_smooth(),
 
 ggplot() + 
   geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
@@ -332,15 +328,15 @@ ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
 ### The end of chapter
 
 ## CHAPTER4- Workflow basics----
-
 ### 4.4 Workflow basics - Excercises----
 
-#Why does this code not work?
+#Why does this code not work? Excercise 
 
 my_variable <- 10
 
 my_variable
-my_variable
+
+my_variable 
 
 # letter 'i' was broken 
 
@@ -352,12 +348,9 @@ ggplot(data = mpg) +
 filter(mpg, cyl == 8)
 filter(diamonds, carat > 3)
 
-## Fixed 
-
-
-## alt shift + k - show shourtcuts 
-
-
+## Fixed
+## alt shift + k - show shortcuts 
+## all exercises - done!  
 ## END OF THE CHAPTER 
 
 #CHAPTER 5- Data transformation---- 
@@ -369,6 +362,8 @@ library(nycflights13)
 library(tidyverse)
 
 library(dplyr)
+
+## I don't know why I do have a lot of errors :/ 
 
 ###5.2.4 Data Transformation Exercises ----
 #Find all flights that
@@ -412,6 +407,10 @@ flights %>% filter(dep_delay<=0 & arr_delay>120)
 
 flights %>% filter(dep_delay>60 & arr_delay<=30)
 
+## Actually - right inswer is 
+
+flights %>% filter(dep_delay>=60 & dep_delay- arr_delay > 30)
+
 ##EXCERCISE Departed between midnight and 6am (inclusive)
 
 flights %>% filter(dep_time>=0 & dep_time<=600)
@@ -423,6 +422,12 @@ flights %>% filter(dep_time>=0 & dep_time<=600)
 
 flights %>% filter(dep_time, between(c)) ## Non lo so :( MJ QUESTION 
 
+# Answer: 
+
+flights %>% filter(between(arr_delay,0,120))
+
+flights %>% filter(between(month,7,9))
+
 #EXCERCISE How many flights have a missing dep_time? What other variables are missing? 
 #What might these rows represent?
 
@@ -430,8 +435,18 @@ f1 <-flights %>% filter(is.na(dep_time))
 
 nrow(f1)
 
+# OR 
 
-## 8255? 
+flights %>% filter(is.na(dep_time)) %>% count("NA")
+
+
+# To know how many values are missing in whole database I am going to use summary
+
+summary(flights)
+
+# now I know exact number of missing values on difrent variables 
+# mostly in dep_deley, arr_tim oraz arr_delay
+
 
 ### 5.3 Arrange ----
 

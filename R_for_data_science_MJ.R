@@ -773,7 +773,46 @@ corelated_delays %>%
   geom_point()
 
 
-## I used solution book to track this question :/ 
+#Look at each destination. Can you find flights that are suspiciously fast? 
+#(i.e. flights that represent a potential data entry error).
+#Compute the air time of a flight relative to the shortest flight to that
+#destination. Which flights were most delayed in the air?
+
+
+standardized_flights <- flights %>%
+  filter(!is.na(air_time)) %>%
+  group_by(dest, origin) %>%
+  mutate(
+    air_time_mean = mean(air_time),
+    air_time_sd = sd(air_time),
+    n = n()
+  ) %>%
+  ungroup() %>%
+  mutate(air_time_standard = (air_time - air_time_mean) / (air_time_sd + 1)) %>% 
+  ggplot(air_ti)
+
+standardized_flights %>% select(air_time_standard, everything())
+
+
+## I used solution book to track this questions :/ 
+
+
+##Exercise 5.7.7
+
+#Find all destinations that are flown by at least two carriers. 
+#Use that information to rank the carriers.
+
+flights %>% 
+  group_by(dest) %>% 
+  mutate(n_carriers= n_distinct(carrier)) %>% 
+  filter(n_carriers>1) %>% 
+  group_by(carrier) %>% 
+  summarise(n_dest= n_distinct(dest)) %>% 
+  arrange(desc(n_dest)) %>% 
+  mutate(rank= min_rank(desc(n_dest))) %>% 
+  ggplot(mapping = aes(x=carrier,y=n_dest,colour=rank))+
+  geom_point()
+
 
 
 

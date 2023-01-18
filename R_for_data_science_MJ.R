@@ -444,11 +444,17 @@ flights %>% filter(is.na(dep_time)) %>% count("NA")
 
 summary(flights)
 
+
 # now I know exact number of missing values on difrent variables 
 # mostly in dep_deley, arr_tim oraz arr_delay
 
 
 ### 5.3 Arrange ----
+
+
+# EXCEERCISE 1 How could you use arrange() to sort all missing values to the start?
+
+flights %>% arrange(desc(is.na(dep_time)))
 
 #EXCERCISE Sort flights to find the most delayed flights. Find the flights that left earliest.
 
@@ -501,8 +507,12 @@ f3 <-flights %>%  mutate(speed_1=distkm/air_time_h)
 f3 %>%  arrange(desc(speed_1)) %>% 
   select(speed_1, dest, flight, tailnum)
 
-## MJ QUESTION  how to show selected and arranged column?: I think that line 479 
-# But if it's correct?
+
+
+# But I can make it super quick 
+
+flights %>% arrange(desc(distance/air_time))
+
 
 # EXCERCISE: Which flights traveled the farthest? Which traveled the shortest?
 
@@ -516,14 +526,13 @@ f3 %>%
   arrange(desc(distance)) %>% 
   select(speed_1, dest, flight, tailnum, distance)
 
-## MJ QUESTION:: How to show only arranged columns - maybe like this? 
+
 
 #EXCERCISE: How could you use arrange() to sort all missing values to the start?
 #(Hint: use is.na()).
 
 flights %>%  arrange(desc(is.na(dep_time)))
 
-# Like this? 
 
 
 ### 5.4 Select  ----
@@ -613,10 +622,23 @@ transmute(flights,
 # I expect to see wrong calculations because first I need to fix units
 
 
+
 flights %>%  select(air_time, arr_time, dep_time)
 
 # I dont know how to fix it MJ QUESTION 
 
+
+#Find the 10 most delayed flights using a ranking function. 
+#How do you want to handle ties? Carefully read the documentation for min_rank().
+
+flights %>% mutate(rank=min_rank(desc(dep_delay))) %>% 
+  arrange(rank) %>% 
+  select(rank,everything())
+
+
+# What does 1:3 + 1:10 return? Why?
+
+1:3 + 1:10
 
 
 ###5.6 Summarise ----
@@ -668,6 +690,91 @@ ggplot(data = delays, mapping = aes(x = delay)) +
   geom_freqpoly(binwidth = 10)
 
 ### definitely I need to turn back to this chapter in the future! 
+
+# I turned back!
+
+### 5.7.1. Excercises Grouped mutates (and filters) ----
+
+
+#Which plane (tailnum) has the worst on-time record?
+
+flights %>% 
+  filter(!is.na(tailnum)) %>% 
+  mutate(na_czas = !is.na(arr_time) & (arr_delay<=0))%>% 
+  group_by(tailnum) %>% 
+  summarise(na_czas = mean(na_czas), n = n()) %>% 
+  filter(min_rank(na_czas) == 1) %>% 
+  arrange((n))
+
+flights %>%
+  filter(!is.na(tailnum)) %>%
+  mutate(on_time = !is.na(arr_time) & (arr_delay <= 0)) %>%
+  group_by(tailnum) %>%
+  summarise(on_time = mean(on_time), n = n()) %>%
+  filter(min_rank(on_time) == 1)
+
+#What time of day should you fly if you want to avoid delays as much as possible?
+
+flights %>% 
+  filter(!is.na(arr_delay)) %>% 
+  group_by(hour) %>% 
+  summarise(arr_delay=mean(arr_delay, na.rm= TRUE)) %>% 
+  arrange(hour) %>% 
+  ggplot(mapping = aes(x=hour,y=arr_delay))+
+  geom_point()
+
+
+
+#For each destination, compute the total minutes of delay. For each flight, 
+#compute the proportion of the total delay for its destination.
+
+?flights
+
+
+flights %>% 
+  filter(arr_delay>0) %>% 
+  group_by(dest, origin, carrier, flight) %>% 
+  summarise(arr_delay = sum(arr_delay)) %>% 
+  group_by(dest) %>% 
+  arrange(desc(arr_delay))
+
+
+## + Proportion  
+
+flights %>% 
+  filter(arr_delay>0) %>% 
+  group_by(dest, origin, carrier, flight) %>% 
+  summarise(arr_delay = sum(arr_delay)) %>% 
+  group_by(dest) %>% 
+  arrange(desc(arr_delay)) %>% 
+  mutate(arr_delay_prop= arr_delay/sum(arr_delay)) %>% 
+  arrange(dest, desc(arr_delay_prop)) %>% 
+  select(carrier,flight,origin,dest,arr_delay_prop)
+
+
+#Delays are typically temporally correlated: even once the problem that caused 
+#the initial delay has been resolved, later flights are delayed to allow
+#earlier flights to leave. Using lag() explore how the delay of a flight is
+#related to the delay of the immediately preceding flight.
+
+
+corelated_delays <- flights %>% 
+  arrange(origin,dest,month,day,dep_time) %>% 
+  mutate(dep_delay_lag = lag(dep_delay)) %>% 
+  filter(!is.na(dep_delay), !is.na(dep_delay_lag))
+
+corelated_delays %>%  select (dep_delay_lag,everything())
+
+
+corelated_delays %>%  
+  group_by(dep_delay_lag) %>% 
+  summarise(dep_delay_mean=mean(dep_delay)) %>% 
+  ggplot(mapping = aes(x=dep_delay_lag,y=dep_delay_mean))+
+  geom_point()
+
+
+## I used solution book to track this question :/ 
+
 
 
 # CHAPTER 6-Workflow: scripts ----

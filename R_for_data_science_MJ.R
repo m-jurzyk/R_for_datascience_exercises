@@ -1136,3 +1136,45 @@ planes %>%
 
 diamonds
 
+
+
+
+
+#CHAPTER 14- STRINGR ----
+
+
+# Loading packages 
+
+library(tidyverse)
+library(stringr)
+
+string1 <- "This is a string"
+
+string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
+
+
+# writelines function 
+
+x <- c("\"","\\")
+
+x
+
+writeLines(x)
+
+
+# Help in Quotes
+
+?"'"
+
+#Combining strings
+
+str_c("x","y")
+
+str_c("x","y","z")
+
+str_c("x","y", sep = ",")
+
+## Prefix / Sufix 
+
+str_c ("prefix-", c("a","b","c"),"-suffix")
+

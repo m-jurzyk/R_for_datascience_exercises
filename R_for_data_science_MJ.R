@@ -1178,3 +1178,35 @@ str_c("x","y", sep = ",")
 
 str_c ("prefix-", c("a","b","c"),"-suffix")
 
+# separators 
+
+str_c("x","y", sep = ",")
+
+
+x <- c("abc", NA)
+
+
+# Replacing NA 
+
+str_c("|-",x,"|-")
+str_c("|-",str_replace_na(x),"|-")
+
+
+# If function 
+
+name <- "Hadley"
+
+time_of_day <- "evening"
+
+birthday <- FALSE
+str_c("Good", time_of_day, " ", name, if (birthday) " Birthday")
+
+str_c(c("x","y","z"),collapse= ",")
+
+
+# STR SUB
+
+## 14.3 Matching patterns with regular expressions
+
+#14.3.1 Basic matches
+

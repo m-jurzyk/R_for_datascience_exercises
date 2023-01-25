@@ -1210,3 +1210,104 @@ str_c(c("x","y","z"),collapse= ",")
 
 #14.3.1 Basic matches
 
+x <- c("apple", "banana", "pear")
+
+str_view(x,"an")
+
+str_view(x, ".a..")
+
+dot <- "\\."
+
+str_view(c("abc", "a.c", "bef"), "a\\.c")
+
+x <- "a\\b"
+
+writeLines(x)
+
+str_view(x,"\\\\")
+
+## 14.3.1 Exercises ---- 
+
+# Explain why each of these strings don’t match a \: "\", "\\", "\\\".
+
+#"\": This will escape the next character in the R string.
+#"\\": This will resolve to \ in the regular expression, which will escape 
+#the next character in the regular expression.
+#"\\\": The first two backslashes will resolve to a
+#literal backslash in the regular expression
+#the third will escape the next character.
+#So in the regular expression, this will escape some escaped character.
+
+## Found on solution book*** 
+
+#Exercise 14.3.1
+
+#What patterns will the regular expression \..\..\..
+#match? How would you represent it as a string?
+
+
+str_view(c(".a.b.c", ".a.b", "....."), c("\\..\\..\\.."), match = TRUE)
+
+#14.3.2 Anchors
+
+x <- c("apple", "banana", "pear")
+
+str_view(x, "a$") # The end of the string
+
+str_view(x, "^a") # Start of the string 
+
+#To remember which is which, try this mnemonic which I learned from Evan Misshula: 
+  #if you begin with power (^), you end up with money ($).
+
+x <- c("apple pie", "apple", "apple cake")
+str_view(x, "apple")
+
+str_view(x, "^apple$")
+
+
+##14.3.2Exercises ---- 
+
+#Given the corpus of common words in stringr::words, 
+#create regular expressions that find all words that:
+
+x <- c(words)
+
+# Ends with X
+
+str_view(x, "x$", match=TRUE)
+
+# Starts with Y 
+
+str_view(x, "^y", match=TRUE)
+
+# Are exactly three letters long. (Don’t cheat by using str_length()!)
+
+str_view(x, "^...$", match = TRUE)
+
+#Have seven letters or more.
+
+str_view(x, "........", match = TRUE)
+
+str_view(c("grey","gray"), "gr(e|a)y")
+
+##14.3.3 Exercises----
+
+#Create regular expressions to find all words that:
+
+#Start with a vowel.
+
+str_view(x,"^[a,e,i,o,u,y]", match=TRUE)
+
+str_subset(stringr::words, "^[aeiou]")
+
+#That only contain consonants. (Hint: thinking about matching “not”-vowels.)
+
+str_subset(stringr::words, "[aeiou]", negate = TRUE)
+
+#Words that end with “-ed” but not ending in “-eed”.
+
+str_subset(stringr::words, "[^e]ed$")
+
+#Words ending in ing or ise:
+
+str_subset(stringr::words, "[i(ng|se)]$")

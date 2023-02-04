@@ -1,16 +1,21 @@
 # R for data science ----
+# My exercises in R language, November 2022
+# Fist chapter 
 
-
-## Loading library tidiverse to get access to ggplot
+#CHAPTER 1- EXPLORE ----
+## Loading tidiverse library to get access to ggplot
 
 library(tidyverse)
 
 ## MPG access to data
+# CHAPTER 2- Introduction ----
+# CHAPTER 3- Data visualization ----
 
-
-# CHAPTER 3- Data visualisation ----
 mpg
 
+# CMD + enter - run a command 
+
+head(mpg) # First few rows of mpg
 
 ## Creating ggplot 
 
@@ -20,7 +25,6 @@ mpg
 mpg %>% ggplot()+
   geom_point(mapping = aes(x=displ, y =hwy))
 
-
 # How many rows and how many columns are in mpg dataset?
 
 nrow(mpg)
@@ -29,14 +33,14 @@ ncol(mpg)
 
 # 234 rows and 11 columns 
 
-
-?mpg
-
+?mpg # I can also ask for help with mpg data using ?mgp 
 
 ## 3.2.4 Excercise 4: Make a scatter plot of hwy vs cyl
 
-mpg %>% ggplot()+
-  geom_point(mapping = aes(x=hwy, y=cyl))
+mpg %>% 
+  ggplot()+
+  geom_point(mapping = aes(x=cyl, y=hwy))
+
 
 ## Prego! 
 
@@ -45,6 +49,7 @@ mpg %>% ggplot()+
 
 mpg %>% ggplot()+
   geom_point(mapping = aes(x=class, y=drv))
+
 
 ## it is showing only random examples of driven train type with the type of the car 
 
@@ -78,7 +83,7 @@ a2<- mpg %>% ggplot()+
 
 a1|a2
 
-## Kind of :/ 
+## Kind of- but it's working 
 
 ## Colour blue 
 
@@ -196,17 +201,17 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
   geom_line()+
   geom_boxplot()
 
-# With histogram it seems to be more dificult 
+# With histogram it seems to be more difficult 
 
-ggplot(data = mpg, mapping = aes(x = displ)+
+ggplot(data = mpg, mapping = aes(x=hwy)+
          geom_histogram()
        
-       ### non lo so :/ 
+       ### non lo so :/  - problems with histogram
        
        
        ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
          geom_point() + 
-         geom_smooth()
+         geom_smooth(),
        
        ## Prediction: mpg mapped x- engine size, y- efficiency, color- drive type
        ## Scatterplot with line smooth without se?
@@ -218,7 +223,7 @@ ggplot(data = mpg, mapping = aes(x = displ)+
        
        ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
          geom_point() + 
-         geom_smooth()
+         geom_smooth(),
        
        ggplot() + 
          geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
@@ -321,3 +326,4 @@ ggplot(data = mpg, mapping = aes(x = displ)+
        
        
        ### The end of chapter
+       

@@ -526,3 +526,108 @@ str_split(x, ", +(and +)?")[[1]]
 
 
 ##14.5 Other types of pattern ----
+
+bananas <- c("banana", "Banana", "BANANA")
+str_view(bananas, regex("banana", ignore_case = TRUE))
+
+x <- "Line 1\nLine 2\nLine 3"
+str_extract_all(x, "^Line")[[1]]
+
+str_extract_all(x, regex("^Line", multiline = TRUE))[[1]]
+
+phone <- regex("
+  \\(?     # optional opening parens
+  (\\d{3}) # area code
+  [) -]?   # optional closing parens, space, or dash
+  (\\d{3}) # another three numbers
+  [ -]?    # optional space or dash
+  (\\d{3}) # three more numbers
+  ", comments = TRUE)
+
+str_match("514-791-8141", phone)
+
+microbenchmark::microbenchmark(
+  fixed = str_detect(sentences, fixed("the")),
+  regex = str_detect(sentences, "the"),
+  times = 20
+  
+  a1 <- "\u00e1"
+  a2 <- "a\u0301"
+  c(a1, a2)
+  
+  a1==a2  
+  
+  
+  ### 14.5.1 Exercises ----  
+  
+  #How would you find all strings containing \ with regex() vs. with fixed()
+  
+  str_subset(c("a\\b", "ab"), "\\\\")
+  
+  str_subset(c("a\\b", "ab"), fixed("\\"))
+  
+  
+  #What are the five most common words in sentences?
+  
+  
+  ##14.6 Other uses of regular expressions  ----
+  
+  apropos("replace")
+  
+  head(dir(pattern = "\\.Rmd$"))
+  
+  
+  ##14.7 stringi ----
+  
+  library(stringi)
+  
+  
+  
+  ###14.7.1 Exercises ---- 
+  
+  #Find the stringi functions that:
+  
+  #Count the number of words.
+  
+  stri_count_words(sentences)
+  
+  #Find duplicated strings.
+  
+  stri_duplicated(sentences)
+  
+  #Generate random text.
+  
+  stri_rand_strings(5,5)
+  
+  
+  #How do you control the language that stri_sort() uses for sorting? To do**
+  
+  #Additional exercises stringi 
+  
+  
+  s0 <- ""
+  
+  s <- "JRC Ispra"
+  
+  s1 <- s
+  
+  s2 <- substring(s, 1,3)
+  
+  
+  stri_isempty(s0)
+  
+  stri_length(s);length(s)
+  
+  stri_locale_get()
+  
+  stri_compare(s2,s) # if stri  1 > stri 2 = 1, stri1 < stri2 = -1 stri1=stri2 = 0
+  
+  stri_sort(c(s0,s,s1,s2))
+  
+  toupper("JRC Ispra"); stri_trans_toupper("Ispra")
+  
+  tolower("JRC")
+  
+  
+  
+  ## THE END OF CHAPTER - so long :o 

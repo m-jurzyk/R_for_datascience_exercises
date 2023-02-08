@@ -1744,6 +1744,32 @@ microbenchmark::microbenchmark(
   
   #How do you control the language that stri_sort() uses for sorting? To do**
   
+  #Additional exercises stringi 
+  
+  
+  s0 <- ""
+  
+  s <- "JRC Ispra"
+  
+  s1 <- s
+  
+  s2 <- substring(s, 1,3)
+  
+  
+  stri_isempty(s0)
+  
+  stri_length(s);length(s)
+  
+  stri_locale_get()
+  
+  stri_compare(s2,s) # if stri  1 > stri 2 = 1, stri1 < stri2 = -1 stri1=stri2 = 0
+  
+  stri_sort(c(s0,s,s1,s2))
+
+  toupper("JRC Ispra"); stri_trans_toupper("Ispra")
+  
+  tolower("JRC")
+  
   
   ## THE END OF CHAPTER - so long :o 
   

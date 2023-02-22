@@ -204,14 +204,14 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
 # With histogram it seems to be more difficult 
 
 ggplot(data = mpg, mapping = aes(x=hwy)+
-    geom_histogram()
+    geom_histogram())
 
       ### non lo so :/  - problems with histogram
       
       
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) + 
         geom_point() + 
-        geom_smooth(),
+        geom_smooth()
 
 ## Prediction: mpg mapped x- engine size, y- efficiency, color- drive type
 ## Scatterplot with line smooth without se?
@@ -223,7 +223,7 @@ ggplot(data = mpg, mapping = aes(x = displ, y = hwy, color = drv)) +
 
 ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) + 
   geom_point() + 
-  geom_smooth(),
+  geom_smooth()
 
 ggplot() + 
   geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) + 
@@ -476,7 +476,7 @@ flights %>% arrange(dep_delay,desc(arr_delay))
 ## I need to find speed value- need to create column speed (dist/time)
 # distance in miles conversion to kmh
 
-flights$distkm <- flights$distance/0.62137,
+flights$distkm <- flights$distance/0.62137
 
 ## show km 
 
@@ -731,13 +731,13 @@ flights %>%
 ?flights
 
 
+
 flights %>% 
   filter(arr_delay>0) %>% 
   group_by(dest, origin, carrier, flight) %>% 
   summarise(arr_delay = sum(arr_delay)) %>% 
   group_by(dest) %>% 
   arrange(desc(arr_delay))
-
 
 ## + Proportion  
 
@@ -1087,6 +1087,11 @@ data.table::fread("/Users/maciejjurzyk/Downloads/EUvaccine.csv")
 
 #CHAPTER 13- Relational data ----
 
+##13.1 Introduction ----
+
+##13.2 nycflights13 ----
+ 
+
 library(tidyverse)
 library(nycflights13)
 
@@ -1100,8 +1105,74 @@ planes
 
 flights
 
-###13.3.1 Exercises----
-#add a surrogate key to flights.
+####13.2.1 Exercises ----
+
+#_1a Imagine you wanted to draw (approximately) the route each plane flies from 
+#its origin to its destination. What variables would you need? 
+#What tables would you need to combine?
+
+# Data about origin and destination, i can find it in table flights connected to airports 
+
+flights_latlon <- flights %>%
+  inner_join(select(airports, origin = faa, origin_lat = lat, origin_lon = lon),
+             by = "origin"
+  ) %>%
+  inner_join(select(airports, dest = faa, dest_lat = lat, dest_lon = lon),
+             by = "dest"
+  )
+
+flights_latlon %>%
+  slice(1:100) %>%
+  ggplot(aes(
+    x = origin_lon, xend = dest_lon,
+    y = origin_lat, yend = dest_lat
+  )) +
+  borders("state") +
+  geom_segment(arrow = arrow(length = unit(0.1, "cm"))) +
+  coord_quickmap() +
+  labs(y = "Latitude", x = "Longitude")
+
+#Code and map found on solution guide book
+
+#_2a I forgot to draw the relationship between weather and airports. 
+#What is the relationship and how should it appear in the diagram?
+
+# It's relation between origin and faa 
+
+#_3a Weather only contains information for the origin (NYC) airports. 
+#If it contained weather records for all airports in the USA,
+#what additional relation would it define with flights?
+
+# We need to define relation between based on flights data
+
+#_4a We know that some days of the year are “special”, and fewer people than 
+#usual fly on them. How might you represent that data as a data frame?
+#What would be the primary keys of that table? How would it connect to the 
+#existing tables?
+
+special_days <- tribble(
+  ~year, ~month, ~day, ~holiday_name, 
+  2023, 05, 27, "My birthday")
+)
+
+## 13.3 Keys ----
+
+planes %>% 
+  count(tailnum) %>% 
+  filter(n > 1)
+
+## One of the ways to check if it's primary key 
+
+
+flights %>% 
+  count(year, month, day, flight) %>% 
+  filter(n > 1)
+
+## It's not unique 
+
+####13.3.1 Exercises----
+
+#_1a add a surrogate key to flights.
 
 f_key <-flights %>%  
 mutate(surrogate_key= row_number()) %>% 
@@ -1112,32 +1183,382 @@ f_key %>% glimpse()
 f_key %>% select(surrogate_key)
 
 
-#Identify the keys in the following datasets
+#_2a Identify the keys in the following data sets
 
 a12 <- Lahman::Batting
 
-a12 %>%  glimpse()
-
-a12 %>% 
-  count(playerID) %>% 
-  filter(n > 1)
-
 a12 %>%
-  group_by(playerID, yearID, stint) %>%
-  filter(n() > 1)
+  count(playerID, yearID, stint) %>%
+  filter(n > 1) %>% 
+  nrow()
+
+
+## Primary Key is mix ID, year and stint 
 
 
 planes
 
 planes %>%
   count(tailnum) %>%
-  filter(n > 1)
+  filter(n > 1) %>% 
+  nrow()
+
+#tailnum
+
+diamonds %>% glimpse()
+
+diamonds %>% 
+count(carat,cut,color,clarity,table,depth,price,x,y,z) %>% 
+  filter(n>1) %>% 
+  nrow()
+
+## There is no primary key 
+
+babynames::babynames %>% 
+  glimpse()
+
+babynames %>% 
+  count(sex,name,year) %>% 
+  filter(n>1) %>% 
+  nrow()
+
+# sex, name and year 
+
+nasaweather::atmos%>% 
+  count(lat,long,month,year) %>% 
+  filter(n>1) %>% 
+  nrow()
+
+#lat,long,month, year
+
+fueleconomy::vehicles %>% 
+  count(id) %>% 
+  filter(n>1) %>% 
+  nrow()
+  
+# ID primary key 
+
+## 13.4 Mutating joins----
+
+flights2 <- flights %>% 
+  select(year:day, hour, origin, dest, tailnum, carrier)
+flights2
+
+flights2 %>%
+  select(-origin, -dest) %>% 
+  left_join(airlines, by = "carrier")
+
+# We can do the same using mutate 
+
+flights2 %>%
+  select(-origin, -dest) %>% 
+  mutate(name = airlines$name[match(carrier, airlines$carrier)])
+
+####13.4.1 Understanding joins ----
+
+x <- tribble(
+  ~key, ~val_x,
+  1, "x1",
+  2, "x2",
+  3, "x3"
+)
+y <- tribble(
+  ~key, ~val_y,
+  1, "y1",
+  2, "y2",
+  4, "y3"
+)
+
+####13.4.2 Inner join ----
+
+x %>% 
+  inner_join(y, by = "key")
+
+####13.4.3 Outer joins ----
+
+## Left join should be defoult one and then if I have reason I can use other joins
+
+####13.4.4 Duplicate keys----
 
 
-diamonds
+#One table has duplicate keys.
+
+x <- tribble(
+  ~key, ~val_x,
+  1, "x1",
+  2, "x2",
+  2, "x3",
+  1, "x4"
+)
+y <- tribble(
+  ~key, ~val_y,
+  1, "y1",
+  2, "y2"
+)
+left_join(x, y, by = "key")
+
+#Both tables have duplicate keys.
+
+x <- tribble(
+  ~key, ~val_x,
+  1, "x1",
+  2, "x2",
+  2, "x3",
+  3, "x4"
+)
+y <- tribble(
+  ~key, ~val_y,
+  1, "y1",
+  2, "y2",
+  2, "y3",
+  3, "y4"
+)
+left_join(x, y, by = "key")
+
+## Hmm error 
+
+
+####13.4.5 Defining the key columns----
+
+flights2 %>% 
+  left_join(weather)
+
+#Natural join 
+
+
+flights2 %>% 
+  left_join(planes, by = "tailnum")
+
+# join by "x" - in this case by tailnum
+
+flights2 %>% 
+  left_join(airports, c("dest" = "faa"))
+
+# join by = c("a" = "b")
+
+
+flights2 %>% 
+  left_join(airports, c("origin" = "faa"))
+
+
+####13.4.6 Exercises----
+
+#_1a Compute the average delay by destination, then join on the airports data 
+#frame so you can show the spatial distribution of delays. 
+#Here’s an easy way to draw a map of the United States:
+
+
+airports %>%
+  semi_join(flights, c("faa" = "dest")) %>%
+  ggplot(aes(lon, lat)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap()
+
+
+flights %>% glimpse()
+
+airports %>% glimpse()
+
+flights %>% 
+  group_by(dest) %>% 
+  mutate(avg_delay=mean(arr_delay, na.rm=TRUE)) %>% 
+  select(dest,arr_delay,avg_delay) %>% 
+  left_join(airports, "faa"=dest)
+
+# Close but not enought :/ 
+
+
+avg_dest_delays <-
+  flights %>%
+  group_by(dest) %>%
+  # arrival delay NA's are cancelled flights
+  summarise(delay = mean(arr_delay, na.rm = TRUE)) %>%
+  inner_join(airports, by = c(dest = "faa"))
+
+avg_dest_delays %>%
+  ggplot(aes(lon, lat, colour = delay)) +
+  borders("state") +
+  geom_point() +
+  coord_quickmap()
+
+
+#_2a Add the location of the origin and destination (i.e. the lat and lon) to flights.
+
+flights %>% 
+  left_join(airports, c("dest" = "faa")) %>% 
+  select(year:dep_delay,lat,lon)
+
+
+#_3a Is there a relationship between the age of a plane and its delays?
+
+?flights
+
+?planes
+
+planes %>% glimpse()
+
+p1 <- planes %>% 
+  mutate(y1=year)
+
+p1 %>% inner_join(flights)
+
+
+flights %>% 
+  full_join(p1) %>% select(y1)
+
+
+# FLAG to do  ----
+
+
+#_4 What weather conditions make it more likely to see a delay?
+
+
+flight_weather <-
+  flights %>%
+  inner_join(weather, by = c(
+    "origin" = "origin",
+    "year" = "year",
+    "month" = "month",
+    "day" = "day",
+    "hour" = "hour"
+  ))
+
+flight_weather %>%
+  group_by(precip) %>%
+  summarise(delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(aes(x = precip, y = delay)) +
+  geom_line() + geom_point()
+
+
+flight_weather %>%
+  ungroup() %>%
+  mutate(visib_cat = cut_interval(visib, n = 10)) %>%
+  group_by(visib_cat) %>%
+  summarise(dep_delay = mean(dep_delay, na.rm = TRUE)) %>%
+  ggplot(aes(x = visib_cat, y = dep_delay)) +
+  geom_point()
+
+# FLAG to do  ----
+
+
+##13.5 Filtering joins ----
+
+top_dest <- flights %>%
+  count(dest, sort = TRUE) %>%
+  head(10)
+top_dest
+
+
+flights %>% 
+  filter(dest %in% top_dest$dest)
+
+
+# SEMI JOIN 
+
+flights %>% 
+  semi_join(top_dest)
+
+# oposite - anti join
+
+flights %>%
+  anti_join(planes, by = "tailnum") %>%
+  count(tailnum, sort = TRUE)
+
+
+### 13.5.1 Exercises ----
+
+#_1a What does it mean for a flight to have a missing tailnum?
+#What do the tail numbers that don’t have a matching record in planes have in common? 
+#(Hint: one variable explains ~90% of the problems.)
+
+?flights
+
+flights %>%
+  anti_join(planes, by = "tailnum") %>% 
+  select
+
+#Flag to do ---- 
+
+#_2a Filter flights to only show flights with planes that have flown at least 100 flights.
+
+flights %>%
+  filter(!is.na(tailnum)) %>%
+  group_by(tailnum) %>%
+  mutate(n = n()) %>%
+  filter(n >= 100)
 
 
 
+#_3a Combine fueleconomy::vehicles and fueleconomy::common 
+#to find only the records for the most common models
+
+?fueleconomy::vehicles
+
+?fueleconomy::common
+
+
+common %>% glimpse()
+
+vehicles %>% glimpse()
+
+vehicles %>%
+  distinct(model, make) %>%
+  group_by(model) %>%
+  filter(n() > 1) %>%
+  arrange(model)
+
+#Flag to do ---- 
+
+
+
+#_4a Find the 48 hours (over the course of the whole year) that have the worst delays.
+#Cross-reference it with the weather data. Can you see any patterns?
+
+
+### 13.6 Join problems ----
+
+# Join workflow 
+
+#Start by identifying the variables that form the primary key in each table. 
+
+
+airports %>% count(alt, lon) %>% filter(n > 1)
+
+# trap - it's not a primary key 
+
+#Check that none of the variables in the primary key are missing.
+
+#Check that your foreign keys match primary keys in another table
+
+# Use anti_join
+
+
+### 13.7 Set operations ---- 
+
+#intersect(x, y): return only observations in both x and y.
+#union(x, y): return unique observations in x and y.
+#setdiff(x, y): return observations in x, but not in y.
+
+df1 <- tribble(
+  ~x, ~y,
+  1,  1,
+  2,  1
+)
+df2 <- tribble(
+  ~x, ~y,
+  1,  1,
+  1,  2
+)
+
+intersect(df1, df2)
+
+# Note that we get 3 rows, not 4
+
+
+setdiff(df1, df2)
+
+setdiff(df2, df1)
 
 
 #CHAPTER 14- STRINGR ----
@@ -1770,11 +2191,14 @@ microbenchmark::microbenchmark(
   
   tolower("JRC")
   
+## THE END OF CHAPTER - so long :o 
   
-  ## THE END OF CHAPTER - so long :o 
+#CHAPTER 15- Factors ---- 
   
-  #CHAPTER 15- Factors ---- 
+
+##15.1 Introduction ---- 
   
-  ##15.1 Introduction ---- 
+  
+  
   
   

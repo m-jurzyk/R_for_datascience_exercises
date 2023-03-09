@@ -2449,4 +2449,195 @@ gss_cat %>%
 #Republican, and Independent changed over time?
 
 
+levels(gss_cat$partyid)
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat")
+  )) %>%
+count(year,partyid) %>% 
+  group_by(year) %>% 
+  mutate(p=n/sum(n)) %>% 
+  ggplot(aes(
+    x = year, y = p,
+    colour = fct_reorder2(partyid, year, p)
+  )) +
+  geom_point() +
+  geom_line() +
+  labs(colour = "Party ID.")
+
+
 #_2a How could you collapse rincome into a small set of categories?
+
+#Flag to do ---- 
+
+
+#CHAPTER 16- Dates and times ----
+
+##16.1 Introduction ---- 
+
+library(tidyverse)
+library(lubridate)
+library(nycflights13)
+
+##16.2 Creating date/times ----
+
+today()
+now()
+
+
+### 16.2.1 From strings ----
+ymd("2017-01-31")
+
+mdy("January 31st, 2017")
+
+dmy("31-Jan-2017")
+
+ymd(20170131)
+
+ymd_hms("2017-01-31 20:11:59")
+
+mdy_hm("01/31/2017 08:01")
+
+ymd(20170131, tz = "UTC")
+
+###16.2.2 From individual components ----
+
+flights %>% 
+  select(year, month, day, hour, minute)
+
+flights %>% 
+  select(year, month, day, hour, minute) %>% 
+  mutate(departure = make_datetime(year, month, day, hour, minute))
+
+
+make_datetime_100 <- function(year, month, day, time) {
+  make_datetime(year, month, day, time %/% 100, time %% 100)
+}
+
+flights_dt <- flights %>% 
+  filter(!is.na(dep_time), !is.na(arr_time)) %>% 
+  mutate(
+    dep_time = make_datetime_100(year, month, day, dep_time),
+    arr_time = make_datetime_100(year, month, day, arr_time),
+    sched_dep_time = make_datetime_100(year, month, day, sched_dep_time),
+    sched_arr_time = make_datetime_100(year, month, day, sched_arr_time)
+  ) %>% 
+  select(origin, dest, ends_with("delay"), ends_with("time"))
+
+flights_dt %>% 
+  ggplot(aes(dep_time))+
+  geom_freqpoly(binwidth= 86400)
+
+#86400 seconds = 1 day 
+
+flights_dt %>% 
+  filter(dep_time<ymd(20130102)) %>% 
+  ggplot(aes(dep_time))+
+  geom_freqpoly(binwidth= 600)
+
+# 600 seconds = 10 minutes 
+
+###16.2.3 From other types ----
+
+as_datetime(today())
+
+as_date(now())
+
+as_datetime(60 * 60 * 10)
+
+as_date(365 * 10 + 2)
+
+#### Exercises 
+
+#_1a What happens if you parse a string that contains invalid dates?
+
+ymd(c("2010-10-10", "bananas"))
+
+#failed to parse. 
+
+#_2a What does the tzone argument to today() do? Why is it important?
+?today
+
+today(tzone="UTC")
+
+d1 <- "January 1, 2010"
+d2 <- "2015-Mar-07"
+d3 <- "06-Jun-2017"
+d4 <- c("August 19 (2015)", "July 1 (2015)")
+d5 <- "12/30/14" # Dec 30, 2014
+
+mdy(d1)
+
+ymd(d2)
+
+dmy(d3)
+
+mdy(d4)
+
+mdy(d5)
+
+
+##16.3 Date-time components----
+
+###16.3.1 Getting components----
+
+datetime <- ymd_hms("2016-07-08 12:34:56")
+
+year(datetime)
+#> [1] 2016
+month(datetime)
+#> [1] 7
+mday(datetime)
+#> [1] 8
+
+yday(datetime)
+#> [1] 190
+wday(datetime)
+#> [1] 6
+
+
+month(datetime, label = TRUE)
+wday(datetime, label = TRUE, abbr = FALSE)
+
+flights_dt %>% 
+  mutate(wday = wday(dep_time, label = TRUE)) %>% 
+  ggplot(aes(x = wday)) +
+  geom_bar()
+
+
+flights_dt %>% 
+  mutate(minute = minute(dep_time)) %>% 
+  group_by(minute) %>% 
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n()) %>% 
+  ggplot(aes(minute, avg_delay)) +
+  geom_line()
+ 
+
+sched_dep <- flights_dt %>% 
+  mutate(minute = minute(sched_dep_time)) %>% 
+  group_by(minute) %>% 
+  summarise(
+    avg_delay = mean(arr_delay, na.rm = TRUE),
+    n = n())
+
+ggplot(sched_dep, aes(minute, avg_delay)) +
+  geom_line()
+
+ggplot(sched_dep, aes(minute, n)) +
+  geom_line()
+
+#### 16.3.4 Exercises
+
+#_1a How does the distribution of flight times within a day 
+#change over the course of the year?
+
+#_2a Compare dep_time, sched_dep_time and dep_delay.
+#Are they consistent? Explain your findings.
+
+#_3a Compare air_time with the duration between the departure and arrival. 
+#Explain your findings. (Hint: consider the location of the airport.)

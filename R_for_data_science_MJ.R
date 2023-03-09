@@ -2109,16 +2109,7 @@ phone <- regex("
 
 str_match("514-791-8141", phone)
 
-microbenchmark::microbenchmark(
-  fixed = str_detect(sentences, fixed("the")),
-  regex = str_detect(sentences, "the"),
-  times = 20
 
-  a1 <- "\u00e1"
-  a2 <- "a\u0301"
-  c(a1, a2)
-
-  a1==a2  
 
   
 ### 14.5.1 Exercises ----  
@@ -2198,7 +2189,264 @@ microbenchmark::microbenchmark(
 
 ##15.1 Introduction ---- 
   
-  
-  
-  
-  
+library(tidyverse)
+library(forcats)  
+
+x1 <- c("Dec", "Apr", "Jan", "Mar")  
+
+x2 <- c("Dec", "Apr", "Jun", "Mrr")
+
+sort(x1)  
+
+month_levels <- c(
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+)
+
+y1 <- factor(x1, levels = month_levels)
+
+y2 <- factor(x2, levels = month_levels)
+
+sort(y2)
+
+y3 <- parse_factor(x2, levels=month_levels)
+
+factor(x1)
+
+
+##15.3 General Social Survey ----
+
+forcats::gss_cat
+
+
+?gss_cat
+
+gss_cat %>% 
+  count(race)
+
+ggplot(gss_cat, aes(race)) +
+  geom_bar()
+
+ggplot(gss_cat, aes(race)) +
+  geom_bar() +
+  scale_x_discrete(drop = FALSE)
+
+###15.3.1 Exercises ----
+#_1a Explore the distribution of rincome (reported income).
+#What makes the default bar chart hard to understand?
+#How could you improve the plot?
+
+ggplot(gss_cat, aes(rincome)) +
+  geom_bar()+
+  coord_flip()
+
+#_2a What is the most common relig in this survey? 
+#What’s the most common partyid?
+
+ggplot(gss_cat, aes(relig)) +
+  geom_bar()+
+  coord_flip()
+
+#Protestant 
+
+ggplot(gss_cat, aes(partyid)) +
+  geom_bar()+
+  coord_flip()
+
+#Independent 
+
+#_3a Which relig does denom (denomination) apply to? 
+#How can you find out with a table?
+#How can you find out with a visualisation?
+
+levels(gss_cat$denom)
+
+
+gss_cat %>%
+  filter(!denom %in% c(
+    "No answer", "Other", "Don't know", "Not applicable",
+    "No denomination"
+  )) %>%
+  count(relig)
+
+
+##15.4 Modifying factor order ----
+
+summary(gss_cat[["tvhours"]])
+
+gss_cat %>%
+  filter(!is.na(tvhours)) %>%
+  ggplot(aes(x = tvhours)) +
+  geom_histogram(binwidth = 1)
+
+relig <- gss_cat %>% 
+  group_by(relig) %>% 
+  summarise(
+    age= mean(age, na.rm=TRUE),
+    tvhours = mean(tvhours, na.rm=TRUE),
+    n=n()
+  )
+ggplot(relig,aes(tvhours, relig)) +
+  geom_point()
+
+
+ggplot(relig, aes(tvhours, fct_reorder(relig,tvhours)))+
+  geom_point()
+
+
+relig %>% 
+  mutate(relig=fct_reorder(relig,tvhours)) %>% 
+  ggplot(aes(tvhours,relig))+
+  geom_point()
+
+rincome <- gss_cat %>% 
+  group_by(rincome) %>% 
+  summarize(
+    age = mean(age,na.rm=TRUE),
+    tvhours=mean(tvhours, na.rm=TRUE),
+    n=n()
+  )
+
+ggplot(
+  rincome,
+  aes(age,fct_reorder(rincome,age))
+)+ 
+  geom_point()
+
+
+ggplot(
+  rincome, 
+  aes(age, fct_relevel(rincome, "Not applicable"))
+)+
+  geom_point()
+
+#1 
+by_age <- gss_cat %>% 
+  filter(!is.na(age)) %>% 
+  group_by(age, marital) %>% 
+  count() %>% 
+  mutate(prop=n/sum(n))
+
+ggplot(by_age, aes(age, prop, color= marital))+
+  geom_line(na.rm=TRUE)
+
+ggplot(by_age,
+  aes(age, prop, color= fct_reorder2(marital, age, prop))
+)+
+  geom_line()+
+  labs(color="marital"))
+
+#2 
+by_age <- gss_cat %>%
+  filter(!is.na(age)) %>%
+  count(age, marital) %>%
+  group_by(age) %>%
+  mutate(prop = n / sum(n))
+
+ggplot(by_age, aes(age, prop, colour = marital)) +
+  geom_line(na.rm = TRUE)
+
+ggplot(by_age, aes(age, prop, colour = fct_reorder2(marital, age, prop))) +
+  geom_line() +
+  labs(colour = "marital")
+
+
+gss_cat %>%
+  mutate(marital = marital %>% fct_infreq() %>% fct_rev()) %>%
+  ggplot(aes(marital)) +
+  geom_bar()
+
+
+####15.4.1 Exercises ----
+
+#_1a There are some suspiciously high numbers in tvhours.
+#Is the mean a good summary?
+
+gss_cat %>% summary()
+
+summary(gss_cat[["tvhours"]])
+
+
+gss_cat %>%
+  filter(!is.na(tvhours)) %>%
+  ggplot(aes(x = tvhours)) +
+  geom_bar()
+
+
+#_2aFor each factor in gss_cat identify whether the order of the
+#levels is arbitrary or principled.
+
+keep(gss_cat, is.factor) %>% names()
+
+levels(gss_cat[["marital"]])
+
+levels(gss_cat[["race"]])
+
+levels(gss_cat[["rincome"]])
+
+levels(gss_cat[["denom"]])
+
+levels(gss_cat[["relig"]])
+
+
+
+
+#_3a Why did moving “Not applicable” to the front 
+#of the levels move it to the bottom of the plot?
+
+
+#  level “Not applicable” is  an integer with value  1
+
+
+##15.5 Modifying factor levels ----
+
+gss_cat %>% count(partyid)
+
+gss_cat %>%
+  mutate(partyid = fct_recode(partyid,
+                              "Republican, strong"    = "Strong republican",
+                              "Republican, weak"      = "Not str republican",
+                              "Independent, near rep" = "Ind,near rep",
+                              "Independent, near dem" = "Ind,near dem",
+                              "Democrat, weak"        = "Not str democrat",
+                              "Democrat, strong"      = "Strong democrat"
+  )) %>%
+  count(partyid)
+
+
+gss_cat %>%
+  mutate(partyid = fct_recode(partyid,
+                              "Republican, strong"    = "Strong republican",
+                              "Republican, weak"      = "Not str republican",
+                              "Independent, near rep" = "Ind,near rep",
+                              "Independent, near dem" = "Ind,near dem",
+                              "Democrat, weak"        = "Not str democrat",
+                              "Democrat, strong"      = "Strong democrat",
+                              "Other"                 = "No answer",
+                              "Other"                 = "Don't know",
+                              "Other"                 = "Other party"
+  )) %>%
+  count(partyid)
+
+
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat")
+  )) %>%
+  count(partyid)
+
+
+gss_cat %>%
+  mutate(relig = fct_lump(relig)) %>%
+  count(relig)
+
+
+####15.5.1 Exercises ----
+#_1a How have the proportions of people identifying as Democrat,
+#Republican, and Independent changed over time?
+
+
+#_2a How could you collapse rincome into a small set of categories?

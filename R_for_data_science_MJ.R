@@ -1079,11 +1079,113 @@ data.table::fread("/Users/maciejjurzyk/Downloads/EUvaccine.csv")
 
 #CHAPTER  12- Tidy data----
 
-##There are three interrelated rules which make a dataset tidy:
+##There are three interrelated rules which make a data set tidy:
 
 #Each variable must have its own column.
 #Each observation must have its own row.
 #Each value must have its own cell.
+
+
+###12.1 Introduction  ----
+
+#“Happy families are all alike; every unhappy family is unhappy 
+#in its own way.” –– Leo Tolstoy
+
+#“Tidy datasets are all alike, but every messy dataset is
+#messy in its own way.” –– Hadley Wickham
+
+
+library(tidyverse)
+
+####12.2.1 Exercises ----
+
+#_1a Using prose, describe how the variables and observations
+#are organised in each of the sample tables.
+
+table1
+
+# In table1 each row represents country year cases and population
+# it's tidy 
+
+# In table2 problem is with count value, there is a combination of data
+# for sure not one observation / value 
+
+table2
+
+# In table3 in column rate also we can see some calculations 
+
+table3
+
+#In table4? 
+
+table4a
+table4b
+
+#_2a Compute the rate for table2, and table4a + table4b.
+#You will need to perform four operations:
+  
+#a) Extract the number of TB cases per country per year.
+
+library(dplyr)
+
+?table2
+table2
+
+t2_cases <- table2 %>%  filter(type == "cases") %>% 
+  rename(cases=count) %>% 
+  arrange(country,year)
+
+
+t2_population <- table2 %>% filter(type== "population") %>% 
+  rename(population=count) %>% 
+  arrange(country,year)
+
+t2_population
+
+table1
+
+#b) Extract the matching population per country per year.
+#c) Divide cases by population, and multiply by 10000.
+
+t2_cases_per_cap <- tibble(
+  year= t2_cases$year,
+  country=t2_cases$country,
+  cases=t2_cases$cases,
+  population=t2_population$population
+) %>% 
+  mutate(cases_per_cap = cases/population*10000) %>% 
+  select(country,year,cases_per_cap)
+
+t2_cases_per_cap
+
+#d) Store back in the appropriate place.
+
+t2_cases_per_cap <- t2_cases_per_cap %>%
+  mutate(type = "cases_per_cap") %>%
+  rename(count = cases_per_cap)
+
+bind_rows(table2, t2_cases_per_cap) %>%
+  arrange(country, year, type, count)
+
+#Which representation is easiest to work with? Which is hardest? Why?
+
+#3_a Recreate the plot showing change in cases over time using 
+#table2 instead of table1. What do you need to do first?
+
+ggplot(table1, aes(year, cases)) + 
+  geom_line(aes(group = country), colour = "grey50") + 
+  geom_point(aes(colour = country))
+
+
+
+table2 %>% 
+  filter(type=="cases") %>% 
+  ggplot(aes(year, count))+
+  geom_line(aes(group=country))
+
+
+
+
 
 #CHAPTER 13- Relational data ----
 
